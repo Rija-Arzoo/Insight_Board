@@ -75,10 +75,14 @@ function Sidebar() {
           </NavLink>
         ))}
 
-        <div className="mt-auto pt-4">
+        {/* Desktop: logout is in header profile menu only (avoids a lone footer CTA). Mobile drawer keeps it here. */}
+        <div className="mt-auto border-t border-[color:var(--border)] pt-4 md:hidden">
           <button
             type="button"
-            onClick={logout}
+            onClick={() => {
+              logout();
+              closeSidebar();
+            }}
             className="sidebar-logout"
           >
             <FiLogOut className="text-lg" />

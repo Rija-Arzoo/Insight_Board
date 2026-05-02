@@ -236,9 +236,9 @@ function Header() {
                     logout();
                     navigate("/login");
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10"
+                  className="header-dropdown-logout touch-manipulation"
                 >
-                  <FiLogOut />
+                  <FiLogOut className="text-lg" aria-hidden />
                   Logout
                 </button>
               </div>

@@ -11,17 +11,20 @@ function Settings() {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [message, setMessage] = useState("");
+  const [messageVariant, setMessageVariant] = useState("success");
 
   const handlePassword = (e) => {
     e.preventDefault();
     const res = changePassword(oldPass, newPass);
     if (res.success) {
       setMessage("Password updated successfully");
+      setMessageVariant("success");
       toast({ variant: "success", title: "Password updated" });
       setOldPass("");
       setNewPass("");
     } else {
       setMessage(res.error);
+      setMessageVariant("error");
       toast({ variant: "error", title: "Update failed", message: res.error });
     }
   };
@@ -76,7 +79,17 @@ function Settings() {
         {/* Change password */}
         <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold mb-2">Change Password</h2>
-          {message && <p className="text-green-600 dark:text-green-300">{message}</p>}
+          {message ? (
+            <p
+              className={
+                messageVariant === "error"
+                  ? "mb-2 text-sm font-bold text-[#7f1d1d] dark:text-[#fecaca]"
+                  : "mb-2 text-sm font-bold text-[#065f46] dark:text-[#bbf7d0]"
+              }
+            >
+              {message}
+            </p>
+          ) : null}
           <form onSubmit={handlePassword} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-[color:var(--text)]">

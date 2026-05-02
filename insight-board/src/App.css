@@ -131,6 +131,47 @@ html.dark button.sidebar-logout:hover {
   color: #fff1f2;
 }
 
+/* Profile menu logout — force readable reds in light mode (Tailwind reds were rendering too pale in some presets) */
+button.header-dropdown-logout {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background-color: transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.25;
+  color: #b91c1c;
+}
+
+button.header-dropdown-logout:hover {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+button.header-dropdown-logout svg {
+  flex-shrink: 0;
+  color: inherit;
+}
+
+html.dark button.header-dropdown-logout {
+  border-top-color: rgba(244, 244, 245, 0.12);
+  color: #fecaca;
+}
+
+html.dark button.header-dropdown-logout:hover {
+  background-color: rgba(244, 63, 94, 0.12);
+  color: #ffffff;
+}
+
 .task-chip {
   display: inline-flex;
   align-items: center;
