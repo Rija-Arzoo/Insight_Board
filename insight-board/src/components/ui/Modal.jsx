@@ -15,39 +15,41 @@ export default function Modal({ open, onClose, title, children, footer }) {
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain">
       <button
         type="button"
-        className="absolute inset-0 bg-black/35"
+        className="fixed inset-0 min-h-[100dvh] bg-black/35"
         aria-label="Close modal"
         onClick={() => onClose?.()}
       />
-      <div className="relative mx-auto mt-20 w-[min(92vw,680px)] rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-2xl">
-        <div className="px-6 py-4 border-b border-[color:var(--border)] flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            {title ? (
-              <div className="truncate text-base font-bold text-[color:var(--text)]">
-                {title}
-              </div>
-            ) : null}
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[680px] flex-col justify-center px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:py-10">
+        <div className="relative flex max-h-[min(88dvh,760px)] w-full flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-2xl">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[color:var(--border)] px-4 py-4 sm:px-6">
+            <div className="min-w-0">
+              {title ? (
+                <div className="truncate text-base font-bold text-[color:var(--text)]">
+                  {title}
+                </div>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-lg border border-[color:var(--border)] text-[color:var(--text)] transition hover:bg-black/5 dark:hover:bg-white/5"
+              onClick={() => onClose?.()}
+              aria-label="Close"
+            >
+              <FiX />
+            </button>
           </div>
-          <button
-            type="button"
-            className="h-10 w-10 inline-flex items-center justify-center rounded-lg border border-[color:var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition text-[color:var(--text)]"
-            onClick={() => onClose?.()}
-            aria-label="Close"
-          >
-            <FiX />
-          </button>
+
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">
+            {children}
+          </div>
+
+          {footer ? (
+            <div className="shrink-0 border-t border-[color:var(--border)] px-4 py-4 sm:px-6">{footer}</div>
+          ) : null}
         </div>
-
-        <div className="px-6 py-5">{children}</div>
-
-        {footer ? (
-          <div className="px-6 py-4 border-t border-[color:var(--border)]">
-            {footer}
-          </div>
-        ) : null}
       </div>
     </div>,
     document.body

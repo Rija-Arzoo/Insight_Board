@@ -8,7 +8,73 @@ import Button from "../ui/Button";
 import Input from "../ui/Input";
 import { validateTask } from "../../utils/validation";
 import { useToast } from "../../hooks/ToastContext";
-import { FiChevronDown, FiMoon, FiPlus, FiSearch, FiSettings, FiSun, FiLogOut } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiMoon, FiPlus, FiSearch, FiSettings, FiSun, FiLogOut } from "react-icons/fi";
+import { useMobileNav } from "./MobileNavContext";
+
+function TaskSearchBox({
+  q,
+  setQ,
+  searchOpen,
+  setSearchOpen,
+  blurCloseTimerRef,
+  matches,
+  goToTask,
+}) {
+  return (
+    <div
+      className="relative w-full"
+      onFocusCapture={() => {
+        if (blurCloseTimerRef.current) window.clearTimeout(blurCloseTimerRef.current);
+        setSearchOpen(true);
+      }}
+      onBlurCapture={() => {
+        if (blurCloseTimerRef.current) window.clearTimeout(blurCloseTimerRef.current);
+        blurCloseTimerRef.current = window.setTimeout(() => setSearchOpen(false), 120);
+      }}
+    >
+      <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)]" />
+      <input
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search title, assignee, or date…"
+        className="w-full min-h-11 rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] py-2.5 !text-[color:var(--text)] pl-10 pr-3 caret-[color:var(--accent)] outline-none placeholder:text-[color:var(--muted)] focus:ring-2 focus:ring-[var(--ring)]"
+      />
+
+      {searchOpen && matches.length ? (
+        <div className="absolute left-0 right-0 z-[60] mt-2 max-h-72 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-lg">
+          <div className="border-b border-[color:var(--border)] px-3 py-2 text-xs font-semibold text-[color:var(--muted)]">
+            Matches
+          </div>
+          <div className="max-h-60 overflow-auto">
+            {matches.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => goToTask(t)}
+                className="touch-manipulation w-full px-3 py-3 text-left transition hover:bg-black/5 dark:hover:bg-white/5"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-[color:var(--text)]">
+                      {t.title}
+                    </div>
+                    <div className="truncate text-xs text-[color:var(--muted)]">
+                      {t.assignedTo || "Unassigned"} • {t.deadline || "No deadline"}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-xs font-semibold text-[color:var(--accent)]">
+                    Open
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function Header() {
   const navigate = useNavigate();
@@ -16,13 +82,14 @@ function Header() {
   const { theme, toggleTheme } = useTheme();
   const { addTask, getTasksForUser } = useTasks();
   const { toast } = useToast();
+  const { openSidebar } = useMobileNav();
 
   const [q, setQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [errors, setErrors] = useState({});
-  const blurCloseTimer = useRef(null);
+  const blurCloseTimerRef = useRef(null);
 
   const members = useMemo(() => {
     const list = JSON.parse(localStorage.getItem("users") || "[]");
@@ -82,86 +149,56 @@ function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-[color:var(--panel)] border-b border-[color:var(--border)]">
-      <div className="px-6 py-4 flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <div className="text-sm text-[color:var(--muted)]">Welcome back</div>
-          <div className="truncate text-lg font-bold text-[color:var(--text)]">
+    <header className="sticky top-0 z-[30] bg-[color:var(--panel)] border-b border-[color:var(--border)] pb-3 md:pb-0 pt-[max(env(safe-area-inset-top,0px),0px)]">
+      <div className="flex items-center gap-2 px-4 py-3 sm:px-6 sm:py-4">
+        <button
+          type="button"
+          className="inline-flex shrink-0 touch-manipulation items-center justify-center rounded-lg border border-[color:var(--border)] p-3 text-[color:var(--text)] hover:bg-black/5 dark:hover:bg-white/5 md:hidden"
+          aria-label="Open navigation menu"
+          onClick={openSidebar}
+        >
+          <FiMenu className="text-xl" />
+        </button>
+
+        <div className="min-w-0 flex-1 md:flex-none md:max-w-[40%]">
+          <div className="truncate text-[13px] text-[color:var(--muted)] sm:text-sm">Welcome back</div>
+          <div className="truncate text-base font-bold text-[color:var(--text)] sm:text-lg">
             {user?.email ?? ""}
           </div>
         </div>
 
-        <form onSubmit={runSearch} className="hidden md:flex items-center gap-2 flex-1 max-w-xl">
-          <div
-            className="relative w-full"
-            onFocusCapture={() => {
-              if (blurCloseTimer.current) window.clearTimeout(blurCloseTimer.current);
-              setSearchOpen(true);
-            }}
-            onBlurCapture={() => {
-              if (blurCloseTimer.current) window.clearTimeout(blurCloseTimer.current);
-              blurCloseTimer.current = window.setTimeout(() => setSearchOpen(false), 120);
-            }}
-          >
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)]" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search title, assignee, or date…"
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] !text-[color:var(--text)] caret-[color:var(--accent)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--ring)]"
-            />
-
-            {searchOpen && matches.length ? (
-              <div className="absolute left-0 right-0 mt-2 rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-lg overflow-hidden">
-                <div className="px-3 py-2 text-xs font-semibold text-[color:var(--muted)]">
-                  Matches
-                </div>
-                <div className="max-h-72 overflow-auto">
-                  {matches.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => goToTask(t)}
-                      className="w-full text-left px-3 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="truncate text-sm font-bold text-[color:var(--text)]">
-                            {t.title}
-                          </div>
-                          <div className="truncate text-xs text-[color:var(--muted)]">
-                            {t.assignedTo || "Unassigned"} • {t.deadline || "No deadline"}
-                          </div>
-                        </div>
-                        <div className="shrink-0 text-xs font-semibold text-[color:var(--accent)]">
-                          Open
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
+        <form
+          onSubmit={runSearch}
+          className="hidden max-w-xl flex-1 items-center md:flex md:min-w-[12rem]"
+        >
+          <TaskSearchBox
+            q={q}
+            setQ={setQ}
+            searchOpen={searchOpen}
+            setSearchOpen={setSearchOpen}
+            blurCloseTimerRef={blurCloseTimerRef}
+            matches={matches}
+            goToTask={goToTask}
+          />
         </form>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2">
           {user?.role === "manager" ? (
             <Button
               variant="primary"
-              className="hidden sm:inline-flex"
+              className="inline-flex touch-manipulation gap-1.5 min-[400px]:gap-2"
               onClick={() => setQuickOpen(true)}
+              aria-label="Create new task"
             >
-              <FiPlus />
-              New task
+              <FiPlus className="text-lg shrink-0" aria-hidden />
+              <span className="hidden min-[400px]:inline">New task</span>
             </Button>
           ) : null}
 
           <button
             onClick={toggleTheme}
             type="button"
-            className="inline-flex items-center justify-center h-10 w-10 rounded-lg border border-[color:var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition text-[color:var(--text)]"
+            className="inline-flex touch-manipulation items-center justify-center rounded-lg border border-[color:var(--border)] p-2.5 text-[color:var(--text)] transition hover:bg-black/5 dark:hover:bg-white/5 sm:h-10 sm:w-10 sm:p-0"
             title="Toggle theme"
             aria-label="Toggle theme"
           >
@@ -172,17 +209,18 @@ function Header() {
             <button
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
-              className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] hover:bg-black/5 dark:hover:bg-white/5 transition text-[color:var(--text)]"
+              className="inline-flex touch-manipulation items-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] px-2.5 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 text-[color:var(--text)] sm:h-10 sm:px-3"
               aria-label="Open profile menu"
+              aria-expanded={profileOpen}
             >
-              <span className="hidden sm:inline text-sm font-semibold">
+              <span className="hidden truncate text-sm font-semibold sm:inline">
                 {user?.role ?? "account"}
               </span>
-              <FiChevronDown className="text-black/50 dark:text-white/50" />
+              <FiChevronDown className="shrink-0 text-black/50 dark:text-white/50" />
             </button>
 
             {profileOpen ? (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-lg overflow-hidden">
+              <div className="absolute right-0 z-[70] mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-lg overflow-hidden">
                 <Link
                   to="/settings"
                   onClick={() => setProfileOpen(false)}
@@ -208,6 +246,21 @@ function Header() {
           </div>
         </div>
       </div>
+
+      <form
+        onSubmit={runSearch}
+        className="border-t border-[color:var(--border)] px-4 pb-3 pt-3 md:hidden bg-[color:var(--panel)]"
+      >
+        <TaskSearchBox
+          q={q}
+          setQ={setQ}
+          searchOpen={searchOpen}
+          setSearchOpen={setSearchOpen}
+          blurCloseTimerRef={blurCloseTimerRef}
+          matches={matches}
+          goToTask={goToTask}
+        />
+      </form>
 
       <Modal
         open={quickOpen}

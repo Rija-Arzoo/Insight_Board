@@ -48,10 +48,10 @@ function Settings() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold mb-4">Settings</h1>
+      <h1 className="mb-4 text-xl font-bold tracking-tight text-[color:var(--text)] sm:text-2xl">Settings</h1>
 
-      <div className="space-y-8">
-        <div className="bg-[color:var(--panel)] p-6 rounded-2xl border border-[color:var(--border)] shadow-sm">
+      <div className="space-y-6 sm:space-y-8">
+        <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold mb-2">Theme</h2>
           <p className="text-sm text-[color:var(--muted)]">
             Pick a preset inspired by modern dashboard UI.
@@ -74,7 +74,7 @@ function Settings() {
         </div>
 
         {/* Change password */}
-        <div className="bg-[color:var(--panel)] p-6 rounded-2xl border border-[color:var(--border)] shadow-sm">
+        <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold mb-2">Change Password</h2>
           {message && <p className="text-green-600 dark:text-green-300">{message}</p>}
           <form onSubmit={handlePassword} className="space-y-4">
@@ -107,7 +107,7 @@ function Settings() {
         </div>
 
         {/* Two-factor */}
-        <div className="bg-[color:var(--panel)] p-6 rounded-2xl border border-[color:var(--border)] shadow-sm">
+        <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold mb-2">Two-Factor Authentication</h2>
           <p className="text-[color:var(--muted)]">
             Status: <span className="font-semibold">{user?.twoFA ? "Enabled" : "Disabled"}</span>
@@ -121,7 +121,7 @@ function Settings() {
         </div>
 
         {/* Delete account */}
-        <div className="bg-[color:var(--panel)] p-6 rounded-2xl border border-[color:var(--border)] shadow-sm">
+        <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold mb-2">Delete Account</h2>
           <button
             onClick={handleDelete}

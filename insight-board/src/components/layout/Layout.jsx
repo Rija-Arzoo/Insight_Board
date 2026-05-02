@@ -1,29 +1,23 @@
-import Sidebar from "./Sidebar"
-import Header from "./Header"
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import { MobileNavProvider } from "./MobileNavContext";
 
 function Layout({ children }) {
-
   return (
-    <div className="flex min-h-screen bg-transparent text-[color:var(--text)]">
+    <MobileNavProvider>
+      <div className="flex min-h-dvh min-w-0 bg-transparent text-[color:var(--text)]">
+        <Sidebar />
 
-      {/* Sidebar */}
-      <Sidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Header />
 
-      {/* Right Side */}
-      <div className="flex flex-col flex-1">
-
-        {/* Header */}
-        <Header />
-
-        {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
-          {children}
-        </main>
-
+          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 pb-6 sm:p-6">
+            {children}
+          </main>
+        </div>
       </div>
-
-    </div>
-  )
+    </MobileNavProvider>
+  );
 }
 
-export default Layout
+export default Layout;

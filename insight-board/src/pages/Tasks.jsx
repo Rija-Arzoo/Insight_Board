@@ -28,7 +28,8 @@ function Tasks() {
   const focusId = params.get("focus") || "";
 
   useEffect(() => {
-    if (focusId) setView("table");
+    if (!focusId) return;
+    queueMicrotask(() => setView("table"));
   }, [focusId]);
 
   const searchMatches = useMemo(() => {
@@ -105,34 +106,36 @@ function Tasks() {
 
   return (
     <Layout>
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Tasks</h1>
-          <div className="text-sm text-[color:var(--muted)]">
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight text-[color:var(--text)] sm:text-2xl">Tasks</h1>
+          <div className="mt-1 text-sm text-[color:var(--muted)]">
             Table + Kanban board, sorting, and export
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center">
           <Button
             variant={view === "table" ? "primary" : "secondary"}
+            className="min-h-11 min-w-0 touch-manipulation px-3 py-2 text-sm sm:min-h-0 sm:px-4"
             onClick={() => setView("table")}
           >
             Table
           </Button>
           <Button
             variant={view === "board" ? "primary" : "secondary"}
+            className="min-h-11 min-w-0 touch-manipulation px-3 py-2 text-sm sm:min-h-0 sm:px-4"
             onClick={() => setView("board")}
           >
             Kanban
           </Button>
-          <Button variant="secondary" onClick={exportCsv}>
+          <Button variant="secondary" className="min-h-11 min-w-0 touch-manipulation px-3 py-2 text-sm sm:min-h-0 sm:px-4" onClick={exportCsv}>
             Export CSV
           </Button>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col md:flex-row gap-3">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:flex-wrap">
         <div
           className="relative w-full md:max-w-md"
           onFocusCapture={() => {
@@ -156,7 +159,7 @@ function Tasks() {
                 setParams(next, { replace: true });
               }
             }}
-            className="border border-[color:var(--border)] bg-[color:var(--panel-2)] !text-[color:var(--text)] placeholder:text-[color:var(--muted)] caret-[color:var(--accent)] rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-[var(--ring)]"
+            className="min-h-11 w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] px-3 py-2 !text-[color:var(--text)] caret-[color:var(--accent)] outline-none placeholder:text-[color:var(--muted)] focus:ring-2 focus:ring-[var(--ring)]"
           />
 
           {searchOpen && searchMatches.length ? (
@@ -195,7 +198,7 @@ function Tasks() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-[color:var(--border)] bg-[color:var(--panel-2)] text-[color:var(--text)] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[var(--ring)] md:w-56"
+          className="min-h-11 w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] px-3 py-2 text-[color:var(--text)] outline-none focus:ring-2 focus:ring-[var(--ring)] md:w-56"
         >
           <option value="">All Status</option>
           <option value="Pending">Pending</option>
@@ -210,7 +213,7 @@ function Tasks() {
             setSortKey(k);
             setSortDir(d);
           }}
-          className="border border-[color:var(--border)] bg-[color:var(--panel-2)] text-[color:var(--text)] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[var(--ring)] md:w-60"
+          className="min-h-11 w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--panel-2)] px-3 py-2 text-[color:var(--text)] outline-none focus:ring-2 focus:ring-[var(--ring)] md:w-60"
         >
           <option value="deadline:asc">Sort: deadline (asc)</option>
           <option value="deadline:desc">Sort: deadline (desc)</option>

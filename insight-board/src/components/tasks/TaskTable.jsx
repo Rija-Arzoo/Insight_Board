@@ -85,7 +85,7 @@ function TaskTable({ search, statusFilter, sortKey, sortDir, focusId }) {
     if (!found) return;
 
     focusHandledRef.current = focusId;
-    setHighlightId(focusId);
+    queueMicrotask(() => setHighlightId(focusId));
 
     window.setTimeout(() => {
       const el = document.getElementById(`task-${focusId}`);
@@ -102,16 +102,102 @@ function TaskTable({ search, statusFilter, sortKey, sortDir, focusId }) {
 
   if (visible.length === 0) {
     return (
-      <div className="bg-[color:var(--panel)] mt-6 p-6 rounded-2xl border border-[color:var(--border)] text-center text-[color:var(--muted)] shadow-sm">
+      <div className="mt-6 rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-8 text-center text-[color:var(--muted)] shadow-sm">
         No tasks to display.
       </div>
     );
   }
 
+  const rowActions = (task) =>
+    user.role === "manager" ? (
+      <div className="flex flex-wrap items-center gap-3 md:flex-nowrap md:gap-4">
+        <button
+          type="button"
+          onClick={() => openEdit(task)}
+          className="touch-manipulation text-left font-semibold text-[color:var(--accent-ink)] underline-offset-4 hover:text-[color:var(--accent)] hover:underline"
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          className="task-action-delete touch-manipulation"
+          onClick={() => {
+            deleteTask(task.id);
+            toast({ variant: "success", title: "Task deleted" });
+          }}
+        >
+          Delete
+        </button>
+      </div>
+    ) : user.role === "member" && task.status !== "Completed" ? (
+      <div className="flex flex-wrap items-center gap-3 md:flex-nowrap md:gap-4">
+        <button
+          type="button"
+          onClick={() => changeStatus(task.id, "In Progress")}
+          className="touch-manipulation text-left font-semibold text-[color:var(--accent-ink)] underline-offset-4 hover:text-[color:var(--accent)] hover:underline"
+        >
+          In Progress
+        </button>
+        <button
+          type="button"
+          onClick={() => changeStatus(task.id, "Completed")}
+          className="touch-manipulation text-left font-semibold text-emerald-700 underline-offset-4 dark:text-green-300 hover:underline"
+        >
+          Complete
+        </button>
+      </div>
+    ) : null;
+
   return (
     <>
-      <div className="mt-6 bg-[color:var(--panel)] rounded-2xl border border-[color:var(--border)] overflow-x-auto shadow-sm">
-        <table className="w-full text-left">
+      <div className="mt-6 space-y-3 md:hidden">
+        {visible.map((task) => {
+          const actions = rowActions(task);
+          return (
+          <article
+            key={task.id}
+            id={`task-${task.id}`}
+            className={[
+              "rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm transition",
+              highlightId === task.id
+                ? "ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[color:var(--panel)]"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-[color:var(--text)]">{task.title}</div>
+              </div>
+              <span className={statusChipClasses(task.status)}>{task.status}</span>
+            </div>
+            <dl className="mt-4 grid gap-3 text-sm text-[color:var(--muted)]">
+              <div className="flex flex-col gap-0.5">
+                <dt className="text-xs font-semibold uppercase tracking-wide opacity-70">Assigned to</dt>
+                <dd className="text-[color:var(--text)]">{task.assignedTo || "—"}</dd>
+              </div>
+              <div className="flex flex-wrap gap-x-8 gap-y-2">
+                <div className="min-w-[8rem]">
+                  <dt className="text-xs font-semibold uppercase tracking-wide opacity-70">Priority</dt>
+                  <dd className="text-[color:var(--text)]">{task.priority || "—"}</dd>
+                </div>
+                <div className="min-w-[8rem]">
+                  <dt className="text-xs font-semibold uppercase tracking-wide opacity-70">Deadline</dt>
+                  <dd className="text-[color:var(--text)]">{task.deadline || "—"}</dd>
+                </div>
+              </div>
+            </dl>
+            {actions ? (
+              <div className="mt-3 border-t border-[color:var(--border)] pt-3">{actions}</div>
+            ) : null}
+          </article>
+        );
+        })}
+      </div>
+
+      <div className="mt-6 hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] shadow-sm md:block md:overflow-x-auto">
+        <table className="w-full text-left md:min-w-[640px]">
         <thead className="bg-black/[0.02] dark:bg-white/[0.04]">
           <tr>
             <th className="p-4 text-sm font-semibold text-[color:var(--muted)]">
@@ -139,7 +225,7 @@ function TaskTable({ search, statusFilter, sortKey, sortDir, focusId }) {
             <tr
               key={task.id}
               id={`task-${task.id}`}
-              className="border-t border-[color:var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition"
+              className="border-t border-[color:var(--border)] transition hover:bg-black/5 dark:hover:bg-white/5"
               style={
                 highlightId === task.id
                   ? { outline: "2px solid var(--accent)", outlineOffset: "-2px" }
@@ -155,44 +241,7 @@ function TaskTable({ search, statusFilter, sortKey, sortDir, focusId }) {
                   {task.status}
                 </span>
               </td>
-              <td className="p-4 flex gap-3">
-                {user.role === "manager" && (
-                  <>
-                    <button
-                      onClick={() => openEdit(task)}
-                      className="font-semibold text-[color:var(--accent-ink)] hover:text-[color:var(--accent)] hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="task-action-delete"
-                      onClick={() => {
-                        deleteTask(task.id);
-                        toast({ variant: "success", title: "Task deleted" });
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-                {user.role === "member" && task.status !== "Completed" && (
-                  <>
-                    <button
-                      onClick={() => changeStatus(task.id, "In Progress")}
-                      className="font-semibold text-[color:var(--accent-ink)] hover:text-[color:var(--accent)] hover:underline"
-                    >
-                      In Progress
-                    </button>
-                    <button
-                      onClick={() => changeStatus(task.id, "Completed")}
-                      className="font-semibold text-emerald-700 dark:text-green-300 hover:underline"
-                    >
-                      Complete
-                    </button>
-                  </>
-                )}
-              </td>
+              <td className="p-4 align-middle">{rowActions(task)}</td>
             </tr>
           ))}
         </tbody>
@@ -204,7 +253,7 @@ function TaskTable({ search, statusFilter, sortKey, sortDir, focusId }) {
         onClose={closeEdit}
         title="Edit task"
         footer={
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-2">
             <Button variant="secondary" onClick={closeEdit}>
               Cancel
             </Button>

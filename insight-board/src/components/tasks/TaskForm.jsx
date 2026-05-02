@@ -51,7 +51,7 @@ function TaskForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-[color:var(--panel)] p-6 rounded-2xl border border-[color:var(--border)] space-y-4 shadow-sm"
+      className="space-y-4 rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel)] p-4 shadow-sm sm:p-6"
     >
       <div>
         <label className="block text-sm font-semibold text-[color:var(--text)]">

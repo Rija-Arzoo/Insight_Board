@@ -22,7 +22,7 @@ function Dashboard() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <h1 className="mb-4 text-xl font-bold tracking-tight text-[color:var(--text)] sm:text-2xl">Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <SummaryCard title="Total Tasks" value={total} />
